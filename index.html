@@ -1,0 +1,1285 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GPT-IMAGE2 Prompt 應用網站｜22 種影像生成做法</title>
+  <meta name="description" content="整理 22 種 GPT-IMAGE2 影像生成 Prompt 應用，支援搜尋、分類篩選、可替換欄位標註與一鍵複製。">
+  <style>
+    :root {
+      --bg:#f7f4ef;
+      --paper:#fffdf8;
+      --ink:#14213d;
+      --muted:#637083;
+      --line:#e7dfd2;
+      --brand:#223b73;
+      --brand2:#5c6bc0;
+      --accent:#ffb703;
+      --chip:#eef2ff;
+      --slot:#fff1bd;
+      --slot-border:#e3a900;
+      --shadow: 0 18px 50px rgba(20,33,61,.10);
+      --radius: 24px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(92,107,192,.16), transparent 28rem),
+        radial-gradient(circle at 100% 10%, rgba(255,183,3,.18), transparent 25rem),
+        var(--bg);
+    }
+    .wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    header { padding: 56px 0 26px; }
+    .hero {
+      background: linear-gradient(135deg, rgba(255,253,248,.92), rgba(238,242,255,.92));
+      border: 1px solid rgba(231,223,210,.85);
+      border-radius: 32px;
+      box-shadow: var(--shadow);
+      padding: clamp(28px, 5vw, 56px);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero:after {
+      content:"";
+      position:absolute; inset:auto -120px -180px auto;
+      width: 360px; height: 360px;
+      border-radius:999px;
+      background: rgba(34,59,115,.10);
+      pointer-events:none;
+    }
+    .eyebrow {
+      display:inline-flex; align-items:center; gap:8px;
+      color: var(--brand);
+      background: rgba(34,59,115,.08);
+      border: 1px solid rgba(34,59,115,.12);
+      border-radius: 999px;
+      padding: 8px 13px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      font-size: 14px;
+    }
+    h1 { font-size: clamp(34px, 6vw, 72px); line-height: 1.02; letter-spacing: -0.04em; margin: 22px 0 18px; }
+    .lead { max-width: 760px; color: var(--muted); font-size: 18px; line-height: 1.8; margin: 0; }
+    .hero-actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:26px; position:relative; z-index:1; }
+    .btn, button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--brand);
+      color:white;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      font-size: 14px;
+    }
+    .btn:hover, button:hover { transform: translateY(-1px); box-shadow: 0 10px 18px rgba(34,59,115,.16); }
+    .btn.secondary, button.secondary { background: white; color: var(--brand); border: 1px solid rgba(34,59,115,.15); }
+    .stats { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; margin-top: 20px; }
+    .stat { background: rgba(255,255,255,.72); border: 1px solid var(--line); border-radius: 20px; padding: 18px; }
+    .stat strong { display:block; font-size: 28px; color: var(--brand); }
+    .stat span { color: var(--muted); font-size:14px; }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(16px);
+      background: rgba(247,244,239,.82);
+      border-bottom: 1px solid rgba(231,223,210,.8);
+      padding: 14px 0;
+      margin-bottom: 26px;
+    }
+    .toolbar-grid { display:grid; grid-template-columns: 1fr auto; gap: 16px; align-items:center; }
+    .searchbox {
+      display:flex; align-items:center; gap: 10px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 16px;
+      box-shadow: 0 8px 20px rgba(20,33,61,.04);
+    }
+    .searchbox input {
+      width: 100%; border: 0; outline: 0; background: transparent;
+      font-size: 16px; color: var(--ink);
+    }
+    .filters { display:flex; flex-wrap:wrap; gap: 8px; margin: 14px 0 0; }
+    .filter {
+      background: white;
+      color: var(--brand);
+      border: 1px solid rgba(34,59,115,.12);
+      padding: 9px 13px;
+      border-radius: 999px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .filter.active { background: var(--brand); color: white; }
+    .countline { color: var(--muted); font-size: 14px; font-weight: 700; white-space:nowrap; }
+    main { padding-bottom: 64px; }
+    .section-title { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; margin: 22px 0 18px; }
+    .section-title h2 { font-size: 26px; margin:0; letter-spacing:-.02em; }
+    .hint { color: var(--muted); margin: 6px 0 0; line-height:1.7; }
+    .grid { display:grid; gap: 22px; }
+    .card {
+      background: rgba(255,253,248,.96);
+      border: 1px solid rgba(231,223,210,.98);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-inner { display:grid; grid-template-columns: minmax(260px, 38%) 1fr; gap: 0; }
+    .preview {
+      background: linear-gradient(160deg, #fff, #f0f3ff);
+      padding: 18px;
+      min-height: 100%;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      border-right: 1px solid var(--line);
+    }
+    .preview img {
+      width: 100%;
+      max-height: 640px;
+      object-fit: contain;
+      border-radius: 18px;
+      box-shadow: 0 16px 36px rgba(20,33,61,.14);
+      background:white;
+    }
+    .content { padding: 22px; }
+    .meta { display:flex; gap: 8px; flex-wrap:wrap; align-items:center; margin-bottom: 10px; }
+    .no { background: var(--brand); color:white; border-radius: 999px; padding: 5px 10px; font-weight:900; font-size:12px; }
+    .cat { background: var(--chip); color: var(--brand); border-radius:999px; padding:5px 10px; font-weight:800; font-size:12px; }
+    h3 { margin: 0; font-size: 25px; letter-spacing:-.02em; }
+    .scenario { color: var(--muted); line-height: 1.7; margin: 10px 0 14px; }
+    .tags { display:flex; flex-wrap:wrap; gap:7px; margin-bottom: 14px; }
+    .tag { background:#f6f7fb; border: 1px solid #e5e8f6; color:#44506a; font-size:12px; font-weight:700; border-radius:999px; padding:5px 9px; }
+    .effect {
+      border-left: 4px solid var(--accent);
+      background: #fff8e5;
+      border-radius: 14px;
+      padding: 10px 12px;
+      line-height:1.65;
+      color: #5c4a11;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    .fields { display:flex; flex-wrap:wrap; gap: 8px; margin: 8px 0 14px; }
+    .field-chip {
+      border:1px dashed rgba(227,169,0,.75);
+      background: #fff8db;
+      color:#5a4500;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .prompt-label { display:flex; align-items:center; justify-content:space-between; gap: 12px; margin-top:14px; }
+    .prompt-label strong { color: var(--brand); }
+    .prompt-view {
+      background: #0f1b31;
+      color: #f9fbff;
+      border-radius: 18px;
+      padding: 16px;
+      white-space: pre-wrap;
+      line-height: 1.75;
+      font-size: 14px;
+      overflow:auto;
+      max-height: 360px;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .slot {
+      background: var(--slot);
+      color: #1c1c1c;
+      border: 1px solid var(--slot-border);
+      border-radius: 8px;
+      padding: 1px 5px;
+      font-weight: 900;
+    }
+    details { margin-top: 14px; }
+    summary {
+      cursor: pointer;
+      font-weight: 900;
+      color: var(--brand);
+      background: #f5f7ff;
+      border: 1px solid #dfe5ff;
+      border-radius: 16px;
+      padding: 12px 14px;
+      user-select:none;
+    }
+    .editor {
+      margin-top: 12px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .inputs { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
+    label { display:block; font-size: 13px; color: var(--muted); font-weight: 800; margin-bottom:6px; }
+    .input { width:100%; border:1px solid var(--line); border-radius: 12px; padding: 10px 12px; min-height: 44px; font-size: 14px; outline: none; background:#fffdf9; color:var(--ink); }
+    .input:focus { border-color: var(--brand2); box-shadow: 0 0 0 4px rgba(92,107,192,.12); }
+    textarea.output {
+      width:100%; min-height: 180px; resize: vertical;
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 13px;
+      font-size: 14px;
+      line-height: 1.7;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Noto Sans TC", monospace;
+      background:#fbfaf7;
+      color:var(--ink);
+    }
+    .editor-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top: 10px; align-items:center; }
+    .copied { color:#18794e; font-size: 13px; font-weight: 900; display:none; }
+    .copied.show { display:inline; }
+    .empty {
+      padding: 34px;
+      text-align:center;
+      border: 1px dashed var(--line);
+      border-radius: 22px;
+      color: var(--muted);
+      background: rgba(255,255,255,.58);
+    }
+    footer { color: var(--muted); border-top: 1px solid var(--line); padding: 28px 0 46px; line-height:1.7; }
+    .topbtn { position: fixed; right: 20px; bottom: 20px; z-index: 40; border-radius: 18px; padding: 12px 14px; }
+    @media (max-width: 860px) {
+      .wrap { width: min(100% - 28px, 1180px); }
+      .toolbar-grid { grid-template-columns: 1fr; }
+      .countline { white-space:normal; }
+      .stats { grid-template-columns: 1fr; }
+      .card-inner { grid-template-columns: 1fr; }
+      .preview { border-right:0; border-bottom:1px solid var(--line); }
+      .inputs { grid-template-columns: 1fr; }
+      .section-title { display:block; }
+    }
+    @media print {
+      .toolbar, .hero-actions, details, .topbtn { display:none; }
+      body { background:white; }
+      .card { break-inside: avoid; box-shadow:none; }
+      .prompt-view { max-height:none; color:#111; background:#f7f7f7; }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap">
+    <section class="hero">
+      <span class="eyebrow">GPT-IMAGE2 Prompt Gallery</span>
+      <h1>22 種影像生成應用，快速找類型、直接改 Prompt</h1>
+      <p class="lead">每張卡片左側放效果圖，右側放 Prompt；黃色標註代表可替換文字，也可以展開欄位直接改寫並複製。</p>
+      <div class="hero-actions">
+        <a class="btn" href="#gallery">開始找 Prompt</a>
+        <button class="secondary" id="expandAll">展開所有自訂欄位</button>
+        <button class="secondary" id="collapseAll">收合所有自訂欄位</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><strong>22</strong><span>種影像應用</span></div>
+        <div class="stat"><strong>9</strong><span>大類型可篩選</span></div>
+      </div>
+    </section>
+  </header>
+  <section class="toolbar">
+    <div class="wrap">
+      <div class="toolbar-grid">
+        <div class="searchbox"><span>🔎</span><input id="search" type="search" placeholder="搜尋應用類型、風格、比例、產品、角色、社群、簡報…"></div>
+        <div class="countline" id="countline">顯示 22 種 Prompt</div>
+      </div>
+      <div class="filters" id="filters"></div>
+    </div>
+  </section>
+  <main class="wrap" id="gallery">
+    <div class="section-title">
+      <div>
+        <h2>Prompt 應用卡片</h2>
+        <p class="hint">建議先用分類找場景，再看效果圖是否接近你要的成果，最後改黃色欄位。</p>
+      </div>
+    </div>
+    <section class="grid" id="cards"></section>
+  </main>
+  <button class="topbtn" onclick="window.scrollTo({top:0, behavior:'smooth'})">↑ 回上方</button>
+  <script>
+    const templates = [
+  {
+    "id": 1,
+    "title": "YouTube 爆款縮圖",
+    "category": "社群影音",
+    "scenario": "適合 YouTube 封面、課程影片縮圖、短影音封面，需要強烈點擊誘因與大字標題。",
+    "tags": [
+      "16:9",
+      "縮圖",
+      "高點擊率",
+      "科技感"
+    ],
+    "image": "assets/app-01.webp",
+    "effect": "高對比、大標題、人物情緒與多張 AI 圖像成果並列，適合做爆款視覺。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "主題",
+        "default": "ChatGPT 繪圖功能大更新"
+      },
+      {
+        "key": "主角",
+        "label": "畫面主角",
+        "default": "表情驚訝的創作者，正看著螢幕上出現多張 AI 生成圖片"
+      },
+      {
+        "key": "風格",
+        "label": "整體風格",
+        "default": "要有強烈的科技感"
+      },
+      {
+        "key": "標題1",
+        "label": "標題文字 1",
+        "default": "繪圖大更新！"
+      },
+      {
+        "key": "標題2",
+        "label": "標題文字 2",
+        "default": "10 種神用法"
+      },
+      {
+        "key": "配色",
+        "label": "配色",
+        "default": "藍色、白色、亮橘色為主"
+      }
+    ],
+    "template": "請幫我生成一張 16:9 的 YouTube 縮圖。\n主題是「{{主題}}」。\n畫面主角是一位[{{主角}}]。\n整體風格[{{風格}}]、高對比、高點擊率視覺。\n畫面右側保留大字標題空間，請加入文字：「{{標題1}}」「{{標題2}}」\n配色以[{{配色}}]，畫面簡潔有力，不要過度雜亂。"
+  },
+  {
+    "id": 2,
+    "title": "IG / Threads 社群貼文封面",
+    "category": "社群貼文",
+    "scenario": "適合 IG 輪播封面、Threads 圖文貼文、社群課程宣傳封面。",
+    "tags": [
+      "4:5",
+      "社群封面",
+      "懶人包入口",
+      "簡約"
+    ],
+    "image": "assets/app-02.webp",
+    "effect": "像雜誌式社群封面，主題清楚、文字醒目，搭配筆電與成果圖增加可信度。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "主題",
+        "default": "AI 繪圖新手入門"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "乾淨、簡約、有設計感"
+      },
+      {
+        "key": "主視覺",
+        "label": "主視覺",
+        "default": "一台筆電，螢幕中顯示多張 AI 繪圖成果"
+      },
+      {
+        "key": "標題1",
+        "label": "標題文字 1",
+        "default": "AI 繪圖新手入門"
+      },
+      {
+        "key": "標題2",
+        "label": "標題文字 2",
+        "default": "一看就會"
+      },
+      {
+        "key": "配色",
+        "label": "配色",
+        "default": "米白、淺灰、深藍色"
+      }
+    ],
+    "template": "請幫我生成一張 4:5 的社群貼文封面。\n主題是「{{主題}}」。\n風格[{{風格}}。]\n主視覺是[{{主視覺}}。]\n畫面中加入大標題文字：「{{標題1}}」「{{標題2}}」\n配色為[{{配色}}]，整體有質感、適合社群分享。"
+  },
+  {
+    "id": 3,
+    "title": "Podcast / 節目封面",
+    "category": "社群影音",
+    "scenario": "適合 Podcast、直播節目、訪談單元或內容頻道主視覺。",
+    "tags": [
+      "1:1",
+      "節目封面",
+      "Podcast",
+      "品牌感"
+    ],
+    "image": "assets/app-03.webp",
+    "effect": "人物、麥克風與漂浮創作元素結合，營造專業又親和的節目氛圍。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "主題",
+        "default": "AI 創作實驗室"
+      },
+      {
+        "key": "主體",
+        "label": "畫面主體",
+        "default": "一位創作者坐在麥克風前，周圍漂浮文字、圖片、影片等創作元素"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "現代、溫暖、帶點科技感"
+      },
+      {
+        "key": "標題",
+        "label": "標題文字",
+        "default": "AI 創作實驗室"
+      },
+      {
+        "key": "配色",
+        "label": "配色",
+        "default": "深藍、奶油白、淡金色"
+      }
+    ],
+    "template": "請幫我生成一張 1:1 的 Podcast 封面圖。\n主題是「{{主題}}」。\n畫面主體是[{{主體}}。]\n風格[{{風格}}]。\n請加入標題文字：「{{標題}}」\n配色為[{{配色}}]，整體專業又有親和力。"
+  },
+  {
+    "id": 4,
+    "title": "資訊圖表 / 懶人包",
+    "category": "知識教學",
+    "scenario": "適合教學懶人包、社群知識圖卡、SOP 重點整理。",
+    "tags": [
+      "4:5",
+      "資訊圖",
+      "懶人包",
+      "教學"
+    ],
+    "image": "assets/app-04.webp",
+    "effect": "以 5 個區塊呈現重點，每格有圖示與短標題，閱讀路徑清楚。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "主題",
+        "default": "寫好 AI 繪圖提示詞的 5 個重點"
+      },
+      {
+        "key": "數量",
+        "label": "區塊數量",
+        "default": "5"
+      },
+      {
+        "key": "內容",
+        "label": "區塊內容",
+        "default": "先說用途、描述主體、指定風格、加上比例、補充限制條件"
+      },
+      {
+        "key": "用途",
+        "label": "使用場景",
+        "default": "社群分享"
+      }
+    ],
+    "template": "請幫我生成一張 4:5 的中文資訊圖。\n主題是「{{主題}}」。\n風格清晰、資訊設計感、簡潔易讀。\n請分成 {{數量}} 個區塊，每個區塊附上小圖示與簡短標題。\n內容為：[{{內容}}]\n整體適合{{用途}}，文字要清楚。"
+  },
+  {
+    "id": 5,
+    "title": "流程教學圖",
+    "category": "知識教學",
+    "scenario": "適合流程說明、操作教學、入門步驟圖、教育訓練教材。",
+    "tags": [
+      "4:5",
+      "流程圖",
+      "SOP",
+      "新手教學"
+    ],
+    "image": "assets/app-05.webp",
+    "effect": "把流程拆成 4 步驟，搭配圖示與清楚方向，適合新手理解。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "主題",
+        "default": "AI 繪圖的基本流程"
+      },
+      {
+        "key": "步驟",
+        "label": "流程步驟",
+        "default": "1.輸入提示詞 2.生成圖片 3.微調修改 4.輸出使用"
+      },
+      {
+        "key": "對象",
+        "label": "適合對象",
+        "default": "新手"
+      }
+    ],
+    "template": "請幫我生成一張 4:5 的流程教學圖。\n主題是「{{主題}}」。\n風格清楚、乾淨、教學感強。\n請以流程圖方式呈現 4 個步驟：[{{步驟}}]\n每個步驟都要有對應圖示，閱讀路徑清楚，適合{{對象}}理解。"
+  },
+  {
+    "id": 6,
+    "title": "課程簡報封面",
+    "category": "課程簡報",
+    "scenario": "適合課程簡報、工作坊首頁、公司內訓封面、提案簡報封面。",
+    "tags": [
+      "16:9",
+      "簡報封面",
+      "課程",
+      "科技感"
+    ],
+    "image": "assets/app-06.webp",
+    "effect": "左側標題、右側科技主視覺，整體像正式課程簡報封面。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "主題",
+        "default": "ChatGPT 繪圖實戰教學"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "商業感、科技感、現代簡報風格"
+      },
+      {
+        "key": "元素",
+        "label": "畫面元素",
+        "default": "筆電、創作流程圖示、AI 圖像元素"
+      },
+      {
+        "key": "標題",
+        "label": "標題文字",
+        "default": "ChatGPT 繪圖實戰教學"
+      },
+      {
+        "key": "配色",
+        "label": "配色",
+        "default": "深藍、白色、亮藍色"
+      }
+    ],
+    "template": "請幫我生成一張 16:9 的簡報封面。\n主題是「{{主題}}」。\n風格[{{風格}}]。\n畫面中有[{{元素}}。]\n左側保留標題空間，請加入文字：「{{標題}}」\n配色為[{{配色}}]，整體簡潔專業。"
+  },
+  {
+    "id": 7,
+    "title": "課程講義插圖",
+    "category": "課程簡報",
+    "scenario": "適合講義、電子書、簡報內頁、課程章節插圖。",
+    "tags": [
+      "教學插圖",
+      "講義",
+      "電子書",
+      "扁平化"
+    ],
+    "image": "assets/app-07.webp",
+    "effect": "用柔和插畫呈現學習情境，適合放在教育素材中。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "主題",
+        "default": "新手學習 AI 繪圖的過程"
+      },
+      {
+        "key": "畫面",
+        "label": "畫面描述",
+        "default": "一位學生坐在桌前，透過電腦學習 AI 繪圖"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "柔和、扁平化、教育插圖風"
+      },
+      {
+        "key": "用途",
+        "label": "用途",
+        "default": "講義或電子書內頁"
+      }
+    ],
+    "template": "請幫我生成一張教學插圖。\n主題是「{{主題}}」。\n畫面為[{{畫面}}。]\n風格[{{風格}}。]\n整體簡單清楚，適合放在{{用途}}中。"
+  },
+  {
+    "id": 8,
+    "title": "電商介紹圖",
+    "category": "電商品牌",
+    "scenario": "適合商品詳情頁、蝦皮/官網商品賣點圖、產品功能說明。",
+    "tags": [
+      "產品詳情",
+      "電商",
+      "商品介紹",
+      "賣點"
+    ],
+    "image": "assets/app-08.webp",
+    "effect": "將商品圖、功能圖示、規格與賣點整理成電商詳情頁風格。",
+    "fields": [
+      {
+        "key": "產品",
+        "label": "產品",
+        "default": "咖啡機"
+      },
+      {
+        "key": "補充",
+        "label": "圖片來源提示",
+        "default": "可以用描述的也可以上傳圖片"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "簡約、大方、排版整齊"
+      }
+    ],
+    "template": "請幫我生成一張產品詳情圖片。\n產品為[{{產品}}]（{{補充}}）\n風格{{風格}}。"
+  },
+  {
+    "id": 9,
+    "title": "商品情境廣告圖",
+    "category": "電商品牌",
+    "scenario": "適合商品廣告、品牌情境照、社群促購圖、商品主圖。",
+    "tags": [
+      "4:5",
+      "情境廣告",
+      "生活感",
+      "品牌感"
+    ],
+    "image": "assets/app-09.webp",
+    "effect": "讓商品成為主角，透過場景、光線與小物營造生活質感。",
+    "fields": [
+      {
+        "key": "商品",
+        "label": "商品",
+        "default": "一個奶油白色保溫杯／也可以上傳商品圖片"
+      },
+      {
+        "key": "場景",
+        "label": "場景",
+        "default": "溫暖木質書桌，旁邊有筆記本、手沖咖啡與晨光"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "生活感、高質感、品牌廣告感"
+      },
+      {
+        "key": "比例",
+        "label": "比例",
+        "default": "4:5"
+      }
+    ],
+    "template": "請幫我生成一張商品情境廣告圖。\n商品是[{{商品}}]\n場景是[{{場景}}。]\n風格{{風格}}。\n商品為主角，背景不喧賓奪主，整體溫暖療癒，比例 {{比例}}。"
+  },
+  {
+    "id": 10,
+    "title": "品牌海報",
+    "category": "電商品牌",
+    "scenario": "適合新品上市、品牌形象海報、官網 banner、社群活動視覺。",
+    "tags": [
+      "品牌海報",
+      "新品上市",
+      "輕奢",
+      "商品宣傳"
+    ],
+    "image": "assets/app-10.webp",
+    "effect": "以高級感、柔霧配色與商品陳列，做出類似美妝品牌主視覺。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "主題",
+        "default": "春季新品上市"
+      },
+      {
+        "key": "商品",
+        "label": "商品",
+        "default": "一組保養品，包含精華液、乳霜與化妝水／也可以自行上傳圖片"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "高級感、簡約、輕奢"
+      },
+      {
+        "key": "英文",
+        "label": "英文標語",
+        "default": "Spring New Arrival"
+      },
+      {
+        "key": "中文",
+        "label": "中文標語",
+        "default": "春季新品上市"
+      },
+      {
+        "key": "配色",
+        "label": "配色",
+        "default": "奶油白、淡金色、柔霧粉色"
+      }
+    ],
+    "template": "請幫我生成一張品牌宣傳海報。\n主題是「{{主題}}」。\n商品是[{{商品}}]\n風格[{{風格}}]品牌視覺。\n畫面中加入文字：「{{英文}}」「{{中文}}」\n配色為{{配色}}，整體乾淨且有品牌感。"
+  },
+  {
+    "id": 11,
+    "title": "海報設計",
+    "category": "電商品牌",
+    "scenario": "適合飲品、餐飲新品、活動宣傳與季節限定商品海報。",
+    "tags": [
+      "4:5",
+      "飲品海報",
+      "餐飲",
+      "夏日感"
+    ],
+    "image": "assets/app-11.webp",
+    "effect": "商業海報感明顯，主視覺、品名、英文標題與食慾感並重。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "主題",
+        "default": "夏日限定芒果氣泡飲"
+      },
+      {
+        "key": "主視覺",
+        "label": "主視覺",
+        "default": "一杯透明玻璃杯裝的芒果氣泡飲，搭配新鮮芒果與冰塊"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "清新、夏日感、商業海報風"
+      },
+      {
+        "key": "中文",
+        "label": "中文文字",
+        "default": "夏日限定"
+      },
+      {
+        "key": "英文",
+        "label": "英文文字",
+        "default": "Mango Sparkling"
+      }
+    ],
+    "template": "請幫我生成一張 4:5 的飲品宣傳海報。\n主題是「{{主題}}」。\n主視覺是[{{主視覺}}。]\n風格{{風格}}。\n請加入文字：「{{中文}}」「{{英文}}」\n整體明亮、清爽、有食慾感。"
+  },
+  {
+    "id": 12,
+    "title": "品牌 Logo 應用",
+    "category": "電商品牌",
+    "scenario": "適合品牌提案、Logo mockup、識別系統展示、作品集展示頁。",
+    "tags": [
+      "Logo",
+      "品牌識別",
+      "Mockup",
+      "作品集"
+    ],
+    "image": "assets/app-12.webp",
+    "effect": "將品牌識別套用在杯子、紙袋、名片與招牌，形成完整 mockup 展示。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "品牌主題",
+        "default": "一個簡約風咖啡品牌"
+      },
+      {
+        "key": "應用",
+        "label": "應用物件",
+        "default": "咖啡杯、紙袋、名片與店面招牌"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "簡約、現代、品牌提案風格"
+      }
+    ],
+    "template": "請幫我生成一張品牌識別展示圖。\n主題是{{主題}}。\n畫面中展示品牌 logo 應用在{{應用}}上的樣子。\n風格{{風格}}，排版乾淨有設計感。\n整體像設計作品集中的品牌 mockup 展示頁。"
+  },
+  {
+    "id": 13,
+    "title": "角色設定圖",
+    "category": "角色創作",
+    "scenario": "適合原創角色、IP 設定、遊戲角色、小說人物視覺開發。",
+    "tags": [
+      "角色設定",
+      "日系動畫",
+      "立繪",
+      "IP"
+    ],
+    "image": "assets/app-13.webp",
+    "effect": "生成角色正面全身立繪，附帶服裝、配件與設定參考感。",
+    "fields": [
+      {
+        "key": "角色",
+        "label": "角色設定",
+        "default": "一位溫柔又神秘的魔法系少女，年約 20 歲"
+      },
+      {
+        "key": "外型",
+        "label": "外型特徵",
+        "default": "長銀髮、淡紫色眼睛、穿著白紫色系魔法長袍，配戴月亮造型飾品"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "精緻日系動畫風"
+      }
+    ],
+    "template": "請幫我設計一個原創角色設定圖。\n角色是{{角色}}。\n外型特徵：{{外型}}。\n風格為{{風格}}。\n請呈現正面全身角色立繪，背景乾淨，方便做角色設定參考。"
+  },
+  {
+    "id": 14,
+    "title": "Q 版貼圖",
+    "category": "角色創作",
+    "scenario": "適合 LINE 貼圖草稿、社群表情包、品牌吉祥物貼圖、課程角色素材。",
+    "tags": [
+      "9:16",
+      "Q版",
+      "貼圖",
+      "表情包"
+    ],
+    "image": "assets/app-14.webp",
+    "effect": "同一角色產出 12 格表情，強調角色一致性與貼圖可用性。",
+    "fields": [
+      {
+        "key": "角色",
+        "label": "角色描述",
+        "default": "請描述角色／或上傳自己的角色"
+      },
+      {
+        "key": "數量",
+        "label": "貼圖數量",
+        "default": "12"
+      },
+      {
+        "key": "比例",
+        "label": "圖片比例",
+        "default": "9:16"
+      },
+      {
+        "key": "表情",
+        "label": "表情文字",
+        "default": "早安、謝謝、加油、晚安、好耶、思考中、好吃、洗澡、驚訝、吃飯、嘿嘿、愛你"
+      }
+    ],
+    "template": "請以同一位 Q 版角色為基礎[{{角色}}]，生成一組 {{數量}} 張貼圖風格表情圖，全部圖都在同一張 {{比例}} 的圖片中。\n風格可愛、乾淨、適合貼圖使用。\n請製作以下表情：[{{表情}}]\n請保持角色外型一致。"
+  },
+  {
+    "id": 15,
+    "title": "四格漫畫",
+    "category": "故事娛樂",
+    "scenario": "適合社群漫畫、教學情境、品牌故事、產品使用情境。",
+    "tags": [
+      "四格漫畫",
+      "故事",
+      "社群",
+      "可愛"
+    ],
+    "image": "assets/app-15.webp",
+    "effect": "把情境拆成四格，讓讀者快速看懂前因後果與情緒轉折。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "主題",
+        "default": "第一次用 ChatGPT 繪圖的新手"
+      },
+      {
+        "key": "格1",
+        "label": "第一格",
+        "default": "主角苦惱，不知道怎麼做圖"
+      },
+      {
+        "key": "格2",
+        "label": "第二格",
+        "default": "打開 ChatGPT 輸入提示詞"
+      },
+      {
+        "key": "格3",
+        "label": "第三格",
+        "default": "畫面跑出各種圖片成果"
+      },
+      {
+        "key": "格4",
+        "label": "第四格",
+        "default": "主角驚訝地說「原來這麼方便！」"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "可愛、簡潔、表情誇張"
+      }
+    ],
+    "template": "請幫我生成一張四格漫畫。\n主題是「{{主題}}」\n劇情如下：\n第一格：{{格1}}。\n第二格：{{格2}}。\n第三格：{{格3}}。\n第四格：{{格4}}\n風格{{風格}}，適合社群分享。"
+  },
+  {
+    "id": 16,
+    "title": "生日 / 節慶賀卡",
+    "category": "生活應用",
+    "scenario": "適合生日卡、節慶祝福卡、教師節卡、公司同仁祝賀圖。",
+    "tags": [
+      "賀卡",
+      "生日",
+      "節慶",
+      "手作感"
+    ],
+    "image": "assets/app-16.webp",
+    "effect": "溫暖手作感，加入蛋糕、氣球、禮物與祝福文字，適合直接分享。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "卡片主題",
+        "default": "生日祝福卡"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "溫暖、可愛、有手作感"
+      },
+      {
+        "key": "元素",
+        "label": "畫面元素",
+        "default": "蛋糕、氣球、禮物元素"
+      },
+      {
+        "key": "對象",
+        "label": "傳送對象",
+        "default": "朋友"
+      }
+    ],
+    "template": "請幫我生成一張{{主題}}。（主題可以換成節慶或其他）\n風格{{風格}}。\n畫面有{{元素}}，適合傳給{{對象}}。"
+  },
+  {
+    "id": 17,
+    "title": "人物設定三視圖",
+    "category": "角色創作",
+    "scenario": "適合角色立繪延伸、人物三視圖、服裝設定、建模前參考圖。",
+    "tags": [
+      "三視圖",
+      "角色設定",
+      "建模參考",
+      "人物設定"
+    ],
+    "image": "assets/app-17.webp",
+    "effect": "將角色整理成正面、側面、背面與細節設定，適合做後續建模或設計參考。",
+    "fields": [
+      {
+        "key": "角色",
+        "label": "角色來源",
+        "default": "這個角色（可上傳圖片或描述人物特性或外型）"
+      },
+      {
+        "key": "輸出",
+        "label": "輸出形式",
+        "default": "人物設定集，全身三視圖版本／或單純的人物設定集"
+      }
+    ],
+    "template": "請依照{{角色}}，製作成{{輸出}}。"
+  },
+  {
+    "id": 18,
+    "title": "App 首頁概念圖",
+    "category": "UI / UX 概念",
+    "scenario": "適合 App 提案、產品早期概念、介面風格探索、功能簡報。",
+    "tags": [
+      "App",
+      "首頁",
+      "UI",
+      "概念圖"
+    ],
+    "image": "assets/app-18.webp",
+    "effect": "快速生成 App 主畫面、按鈕與風格方向，可用於提案討論。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "App 主題",
+        "default": "番茄鐘學習時間紀錄 App"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "溫暖、簡潔、女性向、療癒感"
+      },
+      {
+        "key": "內容",
+        "label": "畫面重點",
+        "default": "主畫面與核心按鈕配置"
+      }
+    ],
+    "template": "請幫我生成一張 App 首頁概念圖，\n主題是「{{主題}}」。\n風格{{風格}}，展示{{內容}}。"
+  },
+  {
+    "id": 19,
+    "title": "網站首頁概念圖",
+    "category": "UI / UX 概念",
+    "scenario": "適合官網首頁、SaaS landing page、AI 平台提案、網站改版討論。",
+    "tags": [
+      "網站首頁",
+      "Hero section",
+      "Landing page",
+      "科技感"
+    ],
+    "image": "assets/app-19.webp",
+    "effect": "生成完整 hero section 視覺，包含主視覺、標題、CTA 按鈕與區塊示意。",
+    "fields": [
+      {
+        "key": "主題",
+        "label": "網站主題",
+        "default": "AI 教學平台"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "專業、現代、科技感"
+      },
+      {
+        "key": "內容",
+        "label": "畫面內容",
+        "default": "主視覺、標題區、按鈕區與簡單區塊示意"
+      }
+    ],
+    "template": "請幫我生成一張網站首頁 hero section 概念圖，主題是「{{主題}}」。\n風格{{風格}}，畫面要包含{{內容}}。"
+  },
+  {
+    "id": 20,
+    "title": "故事分鏡圖",
+    "category": "故事娛樂",
+    "scenario": "適合短片企劃、漫畫分鏡、動畫概念、MV 或廣告腳本視覺化。",
+    "tags": [
+      "16:9",
+      "6格",
+      "分鏡",
+      "電影感"
+    ],
+    "image": "assets/app-20.webp",
+    "effect": "在同一張 16:9 畫面呈現 6 格分鏡，快速看出故事節奏與鏡頭氛圍。",
+    "fields": [
+      {
+        "key": "數量",
+        "label": "分鏡格數",
+        "default": "6"
+      },
+      {
+        "key": "比例",
+        "label": "畫面比例",
+        "default": "16:9"
+      },
+      {
+        "key": "主題",
+        "label": "故事主題",
+        "default": "女孩在雨天撿到一封來自未來的信"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "電影感插畫"
+      }
+    ],
+    "template": "請幫我生成一張 {{數量}} 格分鏡圖在同一個 {{比例}} 的畫面中，主題是「{{主題}}」。\n分鏡清楚、畫面有故事感，風格{{風格}}。"
+  },
+  {
+    "id": 21,
+    "title": "使用說明",
+    "category": "文件說明",
+    "scenario": "適合商品說明書、操作海報、簡易 SOP、產品使用指南。",
+    "tags": [
+      "A4",
+      "說明書",
+      "產品指南",
+      "無印風"
+    ],
+    "image": "assets/app-21.webp",
+    "effect": "把產品轉成 A4 說明書海報，搭配功能圖示、步驟與注意事項。",
+    "fields": [
+      {
+        "key": "產品",
+        "label": "產品",
+        "default": "空氣清淨機"
+      },
+      {
+        "key": "風格",
+        "label": "風格",
+        "default": "日系無印風說明書版"
+      },
+      {
+        "key": "規格",
+        "label": "規格",
+        "default": "A4／說明書海報風"
+      },
+      {
+        "key": "配色",
+        "label": "配色",
+        "default": "白色、淺灰、淡藍色"
+      }
+    ],
+    "template": "請幫我繪製[{{產品}}]商品使用說明書，{{風格}}。\n{{規格}}，背景以 {{配色}} 為主，搭配少量深灰文字與藍色重點標示。"
+  },
+  {
+    "id": 22,
+    "title": "塗鴉風格文字",
+    "category": "照片加工",
+    "scenario": "適合照片再設計、餐飲社群圖、生活紀錄、趣味註記風內容。",
+    "tags": [
+      "照片加工",
+      "塗鴉",
+      "手寫字",
+      "社群感"
+    ],
+    "image": "assets/app-22.webp",
+    "effect": "在原圖上疊加手繪塗鴉與手寫文字，讓照片更有趣但不遮擋主體。",
+    "fields": [
+      {
+        "key": "塗鴉風格",
+        "label": "塗鴉風格",
+        "default": "塗鴉風格"
+      },
+      {
+        "key": "語氣",
+        "label": "文字語氣",
+        "default": "幽默、可愛、吐槽、療癒、日常感或社群感"
+      },
+      {
+        "key": "品質",
+        "label": "品質要求",
+        "default": "高解析度、乾淨疊加、自然手繪感、色彩和諧、線條有機不僵硬、適合社群媒體發布"
+      }
+    ],
+    "template": "請加入一層{ {{塗鴉風格}} }的手繪塗鴉，使塗鴉與圖片中的主體自然互動。\n塗鴉應該模仿、跟隨或誇張原圖中的動作、形狀、手勢、表情或視覺焦點，讓它看起來像是特意畫在照片上的創意註記，而不是後期隨便貼上的裝飾。\n請在圖片周圍加入少量文字風格的手寫文字。文字內容需根據圖片情境自動生成，語氣可以是 { {{語氣}} }，但要符合畫面情緒。請避免使用制式化短語。\n請不要遮擋主體臉部、重要物件、品牌文字或主要焦點。\n整體構圖需平衡，讓塗鴉增強圖片趣味，而不是讓畫面變得雜亂。\n畫面品質：{{品質}}。"
+  }
+];
+    let currentCategory = '全部';
+    const state = new Map();
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+    }
+    function valuesFor(item) {
+      if (!state.has(item.id)) {
+        state.set(item.id, Object.fromEntries(item.fields.map(f => [f.key, f.default])));
+      }
+      return state.get(item.id);
+    }
+    function fillPrompt(item) {
+      const values = valuesFor(item);
+      let out = item.template;
+      item.fields.forEach(f => {
+        out = out.split('{{' + f.key + '}}').join(values[f.key] || '');
+      });
+      return out;
+    }
+    function renderPromptHtml(item) {
+      const values = valuesFor(item);
+      const re = /\{\{([^}]+)\}\}/g;
+      let last = 0;
+      let html = '';
+      let m;
+      while ((m = re.exec(item.template)) !== null) {
+        html += escapeHtml(item.template.slice(last, m.index));
+        const key = m[1];
+        const field = item.fields.find(f => f.key === key);
+        const value = values[key] || '';
+        html += `<span class="slot" title="可自行更換：${escapeHtml(field?.label || key)}">${escapeHtml(value)}</span>`;
+        last = m.index + m[0].length;
+      }
+      html += escapeHtml(item.template.slice(last));
+      return html;
+    }
+    function categories() {
+      const map = new Map();
+      templates.forEach(t => map.set(t.category, (map.get(t.category) || 0) + 1));
+      return [['全部', templates.length], ...Array.from(map.entries())];
+    }
+    function renderFilters() {
+      const el = document.getElementById('filters');
+      el.innerHTML = categories().map(([cat, count]) => `<button class="filter ${cat === currentCategory ? 'active' : ''}" data-cat="${escapeHtml(cat)}">${escapeHtml(cat)} <span>${count}</span></button>`).join('');
+      el.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
+        currentCategory = btn.dataset.cat;
+        renderFilters();
+        renderCards();
+      }));
+    }
+    function matches(item, q) {
+      const hay = [item.title, item.category, item.scenario, item.effect, ...item.tags, ...item.fields.map(f => f.default)].join(' ').toLowerCase();
+      return hay.includes(q.toLowerCase());
+    }
+    function cardHtml(item) {
+      const values = valuesFor(item);
+      const fields = item.fields.map(f => `<span class="field-chip">${escapeHtml(f.label)}</span>`).join('');
+      const tags = item.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
+      const inputs = item.fields.map(f => `
+        <div>
+          <label for="field-${item.id}-${escapeHtml(f.key)}">${escapeHtml(f.label)}</label>
+          <textarea class="input" rows="2" id="field-${item.id}-${escapeHtml(f.key)}" data-id="${item.id}" data-key="${escapeHtml(f.key)}">${escapeHtml(values[f.key])}</textarea>
+        </div>`).join('');
+      return `
+      <article class="card" id="app-${String(item.id).padStart(2,'0')}">
+        <div class="card-inner">
+          <figure class="preview"><img loading="lazy" src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)} 效果參考圖"></figure>
+          <div class="content">
+            <div class="meta"><span class="no">#${String(item.id).padStart(2,'0')}</span><span class="cat">${escapeHtml(item.category)}</span></div>
+            <h3>${escapeHtml(item.title)}</h3>
+            <p class="scenario">${escapeHtml(item.scenario)}</p>
+            <div class="tags">${tags}</div>
+            <div class="effect"><strong>效果參考：</strong>${escapeHtml(item.effect)}</div>
+            <div><strong>可替換欄位：</strong><div class="fields">${fields}</div></div>
+            <div class="prompt-label"><strong>Prompt 做法</strong><button class="secondary" data-copy="${item.id}">複製 Prompt</button></div>
+            <pre class="prompt-view" id="prompt-view-${item.id}">${renderPromptHtml(item)}</pre>
+            <details class="edit-details">
+              <summary>自訂黃色欄位，產生自己的 Prompt</summary>
+              <div class="editor">
+                <div class="inputs">${inputs}</div>
+                <textarea class="output" id="output-${item.id}" readonly>${escapeHtml(fillPrompt(item))}</textarea>
+                <div class="editor-actions"><button data-copy="${item.id}">複製改寫後 Prompt</button><button class="secondary" data-reset="${item.id}">還原預設</button><span class="copied" id="copied-${item.id}">已複製</span></div>
+              </div>
+            </details>
+          </div>
+        </div>
+      </article>`;
+    }
+    function renderCards() {
+      const q = document.getElementById('search').value.trim();
+      const filtered = templates.filter(t => (currentCategory === '全部' || t.category === currentCategory) && (!q || matches(t, q)));
+      const cards = document.getElementById('cards');
+      document.getElementById('countline').textContent = `顯示 ${filtered.length} / ${templates.length} 種 Prompt`;
+      if (!filtered.length) {
+        cards.innerHTML = '<div class="empty">找不到符合條件的 Prompt，請換一個關鍵字或切回「全部」。</div>';
+        return;
+      }
+      cards.innerHTML = filtered.map(cardHtml).join('');
+      bindCardEvents();
+    }
+    function updateItem(id) {
+      const item = templates.find(t => t.id == id);
+      if (!item) return;
+      const view = document.getElementById(`prompt-view-${id}`);
+      const output = document.getElementById(`output-${id}`);
+      if (view) view.innerHTML = renderPromptHtml(item);
+      if (output) output.value = fillPrompt(item);
+    }
+    function bindCardEvents() {
+      document.querySelectorAll('.input').forEach(input => {
+        input.addEventListener('input', e => {
+          const id = Number(e.target.dataset.id);
+          const key = e.target.dataset.key;
+          const values = valuesFor(templates.find(t => t.id === id));
+          values[key] = e.target.value;
+          updateItem(id);
+        });
+      });
+      document.querySelectorAll('[data-copy]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = Number(btn.dataset.copy);
+          const item = templates.find(t => t.id === id);
+          const text = fillPrompt(item);
+          try {
+            await navigator.clipboard.writeText(text);
+          } catch (e) {
+            const area = document.getElementById(`output-${id}`);
+            if (area) { area.select(); document.execCommand('copy'); }
+          }
+          const copied = document.getElementById(`copied-${id}`);
+          if (copied) { copied.classList.add('show'); setTimeout(()=>copied.classList.remove('show'), 1400); }
+        });
+      });
+      document.querySelectorAll('[data-reset]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = Number(btn.dataset.reset);
+          const item = templates.find(t => t.id === id);
+          state.set(id, Object.fromEntries(item.fields.map(f => [f.key, f.default])));
+          renderCards();
+          const target = document.getElementById(`app-${String(id).padStart(2,'0')}`);
+          if (target) target.scrollIntoView({block:'center'});
+        });
+      });
+    }
+    document.getElementById('search').addEventListener('input', renderCards);
+    document.getElementById('expandAll').addEventListener('click', () => document.querySelectorAll('details').forEach(d => d.open = true));
+    document.getElementById('collapseAll').addEventListener('click', () => document.querySelectorAll('details').forEach(d => d.open = false));
+    renderFilters();
+    renderCards();
+  </script>
+</body>
+</html>
